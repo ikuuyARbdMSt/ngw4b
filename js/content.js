@@ -383,24 +383,25 @@ function rmNG_main(word) {
     );
     // xpathの結果を使って要素を削除
     for (let i = 0; i < xpaths_result.snapshotLength; i++) {
-      let node = xpaths_result.snapshotItem(i);
+      const node = xpaths_result.snapshotItem(i);
       node.remove();
     }
   }
 }
 
-// 空のdivタグを削除するためのxpathと処理。空のdivタグは検索結果が見つからなかった場合に表示されることがある。
+// 空になった部分の削除
 function rmNG_main_cleaning() {
-  let xpath = `//div[contains(@class,'slide')][not(*)]`;
-  let result = document.evaluate(
-    xpath,
+  const xpath1 = `//div[starts-with(@class,'slide')][not(*)]`;
+  const xpaths = `${xpath1}`;
+  const result = document.evaluate(
+    xpaths,
     document,
     null,
     XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
     null
   );
   for (let i = 0; i < result.snapshotLength; i++) {
-    let node = result.snapshotItem(i);
+    const node = result.snapshotItem(i);
     node.remove();
   }
 }
@@ -423,7 +424,7 @@ function rmNG_img(word) {
     null
   );
   for (let i = 0; i < xpath_result.snapshotLength; i++) {
-    let node = xpath_result.snapshotItem(i);
+    const node = xpath_result.snapshotItem(i);
     node.remove();
   }
 }
@@ -472,7 +473,7 @@ function rmNG_news(word) {
     null
   );
   for (let i = 0; i < xpaths_result.snapshotLength; i++) {
-    let node = xpaths_result.snapshotItem(i);
+    const node = xpaths_result.snapshotItem(i);
     node.remove();
   }
 }
@@ -497,7 +498,7 @@ function rmNG_shop(word) {
     null
   );
   for (let i = 0; i < xpath_result.snapshotLength; i++) {
-    let node = xpath_result.snapshotItem(i);
+    const node = xpath_result.snapshotItem(i);
     node.remove();
   }
 }
