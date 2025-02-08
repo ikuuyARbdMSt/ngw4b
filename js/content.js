@@ -202,12 +202,15 @@ function rmNG_main(word) {
   if (word_opt_match !== null) {
     const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
     const word_opt_lst = word_opt.split(",");
+    // オプション配列から不要な空白を除去する。
     for (let i = 0; i < word_opt_lst.length; i++) {
       word_opt_lst[i] = word_opt_lst[i].trim();
     }
+    // regexが指定されている場合、正規表現として検索を行う。
     if (word_opt_lst.includes("regex")) {
       isRegex = true;
     }
+    // titleが指定されている場合、タイトルのみを検索対象とする。
     if (word_opt_lst.includes("title")) {
       isTitle = true;
     }
@@ -216,11 +219,8 @@ function rmNG_main(word) {
   }
   // 正規表現オプションが指定されている場合の処理。
   if (isRegex) {
-    console.log(isTitle);
     // 検索するタグを指定する。
-    const searchElems = document.querySelectorAll(
-      "p, a, div:not(.b_gwaDlSnippet), span"
-    );
+    const searchElems = document.querySelectorAll("p, a, div, span");
     const searchElemsLst = Array.from(searchElems);
     // 正規表現パターンを作成する。
     const regexPattern = new RegExp(word, "i");
@@ -238,6 +238,15 @@ function rmNG_main(word) {
           const classNames = Array.from(searchElem.classList);
           let isDesc = false;
           if (tagName === "P" && !classNames.includes("na_t")) {
+            isDesc = true;
+          } else if (tagName === "SPAN" && classNames.includes("df_alsocon")) {
+            isDesc = true;
+          } else if (
+            tagName === "DIV" &&
+            (classNames.includes("b_gwaDlSnippet") ||
+              classNames.includes("feeditem_snippet") ||
+              classNames.includes("df_qntext"))
+          ) {
             isDesc = true;
           } else if (tagName === "A") {
             const parent = searchElem.parentNode;
@@ -303,40 +312,66 @@ function rmNG_main(word) {
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     // Xpath式
     const contains_text =
-      `contains(translate(./text()` +
-      `,'${uppercase}','${lowercase}'),'${word}')` +
-      ` or strong[contains(translate(./text()` +
-      `,'${uppercase}','${lowercase}'),'${word}')]`;
+      `contains(` +
+      `translate(./text(),'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      ` or strong[` +
+      `contains(` +
+      `translate(./text(),'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      `]`;
     const a_arialabel =
-      `a[contains(translate(@aria-label` +
-      `,'${uppercase}','${lowercase}'),'${word}')]`;
-    const xpath1 =
+      `a[contains(` +
+      `translate(` +
+      `@aria-label,'${uppercase}','${lowercase}'` +
+      `)` +
+      `,'${word}'` +
+      `)]`;
+    const xpath1 = // 通常結果の説明文
       `//li[contains(@class, 'b_algo')]` +
       `[.//a[${contains_text}] or .//${a_arialabel}]`;
-    const xpath2 =
-      `//div[contains(@class, 'slide')][` +
-      `.//span[${contains_text}]` +
+    const xpath2 = // スライド
+      `//div[starts-with(@class, 'slide')][` +
+      `.//span[not(@class='df_alsocon')][${contains_text}]` +
       ` or .//${a_arialabel}` +
-      ` or .//div[not(@class='b_gwaDlSnippet')][${contains_text}]` +
+      ` or .//div[` +
+      `not(@class='b_gwaDlSnippet')` +
+      ` and not(@class='feeditem_snippet')` +
+      ` and not(@class='df_qntext')` +
+      `]` +
+      `[${contains_text}]` +
       `]`;
     const xpath3 = `//div[div[contains(@class,'mc_vtvc')]/${a_arialabel}]`; // 動画
-    const xpath4 =
-      `//div[contains(translate(@data-displayname` +
-      `,'${uppercase}','${lowercase}'),'${word}')]`;
-    const xpath5 =
-      `//div[contains(translate(@data-title` +
-      `,'${uppercase}','${lowercase}'),'${word}')]`;
-    const xpath6 = `//li[div[contains(@class, 'sb_add')]//a[${contains_text}]]`; // 広告
-    const xpath7 =
+    const xpath4 = `//li[div[contains(@class, 'sb_add')]//a[${contains_text}]]`; // 広告
+    const xpath5 = // ニュース
       `//div[contains(@class, "na_card_wrp")]` +
-      `[.//p[${contains_text}] or .//${a_arialabel}]`; // ニュース
-    let xpaths =
-      `${xpath1}|${xpath2}|${xpath3}|${xpath4}|${xpath5}|` +
-      `${xpath6}|${xpath7}`;
+      `[.//p[${contains_text}] or .//${a_arialabel}]`;
+    const xpath6 =
+      `//div[` +
+      `contains(` +
+      `translate(@data-displayname` +
+      `,'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      ` or contains(` +
+      `translate(@data-title` +
+      `,'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      `]`;
+    let xpaths = `${xpath1}|${xpath2}|${xpath3}|${xpath4}|${xpath5}|${xpath6}`;
     if (!isTitle) {
+      // 通常結果の説明文
       const xpath_desc1 = `//li[contains(@class, 'b_algo')][.//p[${contains_text}]]`;
-      const xpath_desc2 = `//div[contains(@class, 'slide')][.//a[${contains_text}]`;
-      xpaths += `|${xpath_desc1}|${xpath_desc2}]`;
+      const xpath_desc2 = // スライド
+        `//div[starts-with(@class, 'slide')][` +
+        `.//a[${contains_text}]` +
+        ` or .//div[` +
+        `(@class='b_gwaDlSnippet')` +
+        ` or (@class='feeditem_snippet')` +
+        ` or (@class='df_qntext')` +
+        `]` +
+        `[${contains_text}]` +
+        `]`;
+      xpaths += `|${xpath_desc1}|${xpath_desc2}`;
     }
     // xpathを使って検索
     const xpaths_result = document.evaluate(
