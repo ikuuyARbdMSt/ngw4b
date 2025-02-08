@@ -166,6 +166,31 @@ function exe_rmNG(word) {
       chrome.storage.sync.set({ ngw4b_status: status });
     }
     if (status) {
+      // 検索ワードにオプションが含まれているかを判定する正規表現パターン。
+      const word_opt_pattern = /\[[^\]]+\]$/;
+      // 検索ワードからオプションを抽出する。
+      const word_opt_match = word.match(word_opt_pattern);
+      // 検索ワードにオプションが含まれている場合、そのオプションを処理する。
+      let isRegex = false;
+      let isTitle = false;
+      if (word_opt_match !== null) {
+        const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
+        const word_opt_lst = word_opt.split(",");
+        // オプション配列から不要な空白を除去する。
+        for (let i = 0; i < word_opt_lst.length; i++) {
+          word_opt_lst[i] = word_opt_lst[i].trim();
+        }
+        // regexが指定されている場合、正規表現として検索を行う。
+        if (word_opt_lst.includes("regex")) {
+          isRegex = true;
+        }
+        // titleが指定されている場合、タイトルのみを検索対象とする。
+        if (word_opt_lst.includes("title")) {
+          isTitle = true;
+        }
+        // オプションを削除して、検索ワードのみにする。
+        word = word.replace(word_opt_pattern, "");
+      }
       // 開いているページを判定
       const currentURL = window.location.href;
       const pattern_img = /^https:\/\/www\.bing\.com\/images\//;
@@ -174,16 +199,16 @@ function exe_rmNG(word) {
       // 削除処理
       if (pattern_img.test(currentURL)) {
         // Bing画像検索の場合
-        rmNG_img(word);
+        rmNG_img(word, isRegex);
       } else if (pattern_news.test(currentURL)) {
         // Bingニュースの場合
-        rmNG_news(word);
+        rmNG_news(word, isRegex, isTitle);
       } else if (pattern_shop.test(currentURL)) {
         // Bingショップの場合
-        rmNG_shop(word);
+        rmNG_shop(word, isRegex);
       } else {
         // 通常の検索結果の場合
-        rmNG_main(word);
+        rmNG_main(word, isRegex, isTitle);
         rmNG_main_cleaning();
       }
     }
@@ -191,32 +216,7 @@ function exe_rmNG(word) {
 }
 
 // 引数の文字列を含む通常検索結果を削除する
-function rmNG_main(word) {
-  // 検索ワードにオプションが含まれているかを判定する正規表現パターン。
-  const word_opt_pattern = /\[[^\]]+\]$/;
-  // 検索ワードからオプションを抽出する。
-  const word_opt_match = word.match(word_opt_pattern);
-  // 検索ワードにオプションが含まれている場合、そのオプションを処理する。
-  let isRegex = false;
-  let isTitle = false;
-  if (word_opt_match !== null) {
-    const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
-    const word_opt_lst = word_opt.split(",");
-    // オプション配列から不要な空白を除去する。
-    for (let i = 0; i < word_opt_lst.length; i++) {
-      word_opt_lst[i] = word_opt_lst[i].trim();
-    }
-    // regexが指定されている場合、正規表現として検索を行う。
-    if (word_opt_lst.includes("regex")) {
-      isRegex = true;
-    }
-    // titleが指定されている場合、タイトルのみを検索対象とする。
-    if (word_opt_lst.includes("title")) {
-      isTitle = true;
-    }
-    // オプションを削除して、検索ワードのみにする。
-    word = word.replace(word_opt_pattern, "");
-  }
+function rmNG_main(word, isRegex, isTitle) {
   // 正規表現オプションが指定されている場合の処理。
   if (isRegex) {
     // 検索するタグを指定する。
@@ -396,55 +396,55 @@ function rmNG_main_cleaning() {
 }
 
 // 引数の文字列を含む画像検索結果を削除する
-function rmNG_img(word) {
-  // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
-  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lowercase = "abcdefghijklmnopqrstuvwxyz";
-  // Xpathで要素を検索し削除
-  const xpath =
-    `//li[div[contains(@class,'isv')]` +
-    `//a[contains(translate(@aria-label` +
-    `,'${uppercase}','${lowercase}'), '${word}')]]`;
-  const xpath_result = document.evaluate(
-    xpath,
-    document,
-    null,
-    XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
-    null
-  );
-  for (let i = 0; i < xpath_result.snapshotLength; i++) {
-    const node = xpath_result.snapshotItem(i);
-    node.remove();
+function rmNG_img(word, isRegex) {
+  // 正規表現オプションが指定されている場合の処理。
+  if (isRegex) {
+    // 検索するタグを指定する。
+    const searchElems = document.querySelectorAll("a");
+    const searchElemsLst = Array.from(searchElems);
+    // 正規表現パターンを作成する。
+    const regexPattern = new RegExp(word, "i");
+    // 各要素に対して正規表現で検索して処理。
+    searchElemsLst.forEach((searchElem) => {
+      const attr = searchElem.getAttribute("aria-label");
+      if (attr !== null && regexPattern.test(attr.trim())) {
+        const targetElemExpr = "li:has(div.isv)";
+        const targetElem = searchElem.closest(targetElemExpr);
+        if (targetElem !== null) {
+          targetElem.remove();
+        }
+      }
+    });
+  } else {
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    // Xpath式
+    const xpath =
+      `//li[` +
+      `div[contains(@class,'isv')]` +
+      `//a[contains(` +
+      `translate(@aria-label,'${uppercase}','${lowercase}'), '${word}'` +
+      `)]` +
+      `]`;
+    // xpathを使って検索
+    const xpath_result = document.evaluate(
+      xpath,
+      document,
+      null,
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+      null
+    );
+    // xpathの結果を使って要素を削除
+    for (let i = 0; i < xpath_result.snapshotLength; i++) {
+      const node = xpath_result.snapshotItem(i);
+      node.remove();
+    }
   }
 }
 
 // 引数の文字列を含むニュース検索結果を削除する
-function rmNG_news(word) {
-  // 検索ワードにオプションが含まれているかを判定する正規表現パターン。
-  const word_opt_pattern = /\[[^\]]+\]$/;
-  // 検索ワードからオプションを抽出する。
-  const word_opt_match = word.match(word_opt_pattern);
-  // 検索ワードにオプションが含まれている場合、そのオプションを処理する。
-  let isRegex = false;
-  let isTitle = false;
-  if (word_opt_match !== null) {
-    const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
-    const word_opt_lst = word_opt.split(",");
-    // オプション配列から不要な空白を除去する。
-    for (let i = 0; i < word_opt_lst.length; i++) {
-      word_opt_lst[i] = word_opt_lst[i].trim();
-    }
-    // regexが指定されている場合、正規表現として検索を行う。
-    if (word_opt_lst.includes("regex")) {
-      isRegex = true;
-    }
-    // titleが指定されている場合、タイトルのみを検索対象とする。
-    if (word_opt_lst.includes("title")) {
-      isTitle = true;
-    }
-    // オプションを削除して、検索ワードのみにする。
-    word = word.replace(word_opt_pattern, "");
-  }
+function rmNG_news(word, isRegex, isTitle) {
   // 正規表現オプションが指定されている場合の処理。
   if (isRegex) {
     // 検索するタグを指定する。
@@ -482,17 +482,25 @@ function rmNG_news(word) {
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     // Xpathで要素を検索し削除
     const xpath1 =
-      `//div[contains(@class,'news-card')][contains(translate(@data-author,` +
-      `'${uppercase}','${lowercase}'),'${word}')` +
-      `or contains(translate(@data-title,` +
-      `'${uppercase}','${lowercase}'),'${word}')]`;
+      `//div[contains(@class,'news-card')][` +
+      `contains(` +
+      `translate(@data-author,'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      `or contains(` +
+      `translate(@data-title,'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      `]`;
     let xpaths = xpath1;
     if (!isTitle) {
       const xpath_desc1 =
-        `//div[contains(@class,'news-card')][.//div[contains(translate(@title,` +
-        `'${uppercase}','${lowercase}'),'${word}')]]`;
+        `//div[contains(@class,'news-card')][` +
+        `.//div[contains(` +
+        `translate(@title,'${uppercase}','${lowercase}'),'${word}'` +
+        `)]` +
+        `]`;
       xpaths += `|${xpath_desc1}`;
     }
+    // xpathを使って検索
     const xpaths_result = document.evaluate(
       xpaths,
       document,
@@ -500,6 +508,7 @@ function rmNG_news(word) {
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
+    // xpathの結果を使って要素を削除
     for (let i = 0; i < xpaths_result.snapshotLength; i++) {
       const node = xpaths_result.snapshotItem(i);
       node.remove();
@@ -508,26 +517,57 @@ function rmNG_news(word) {
 }
 
 // 引数の文字列を含むショップ検索結果を削除する
-function rmNG_shop(word) {
-  // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
-  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lowercase = "abcdefghijklmnopqrstuvwxyz";
-  // Xpathで要素を検索し削除
-  const contains_text =
-    `contains(translate(./text()` +
-    `,'${uppercase}','${lowercase}'),'${word}')` +
-    ` or strong[contains(translate(./text()` +
-    `,'${uppercase}','${lowercase}'),'${word}')]`;
-  const xpath = `//li[@class='br-item'][.//span[${contains_text}]]`;
-  const xpath_result = document.evaluate(
-    xpath,
-    document,
-    null,
-    XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
-    null
-  );
-  for (let i = 0; i < xpath_result.snapshotLength; i++) {
-    const node = xpath_result.snapshotItem(i);
-    node.remove();
+function rmNG_shop(word, isRegex) {
+  // 正規表現オプションが指定されている場合の処理。
+  if (isRegex) {
+    // 検索するタグを指定する。
+    const searchElems = document.querySelectorAll("span");
+    const searchElemsLst = Array.from(searchElems);
+    // 正規表現パターンを作成する。
+    const regexPattern = new RegExp(word, "i");
+    // 各要素に対して正規表現で検索して処理。
+    searchElemsLst.forEach((searchElem) => {
+      // テキストノードに対して正規表現で検索する。
+      for (let elem of searchElem.childNodes) {
+        if (
+          elem.nodeName === "#text" &&
+          regexPattern.test(elem.nodeValue.trim())
+        ) {
+          const targetElemExpr = "li.br-item";
+          const targetElem = searchElem.closest(targetElemExpr);
+          if (targetElem !== null) {
+            targetElem.remove();
+          }
+        }
+      }
+    });
+  } else {
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    // Xpath式
+    const contains_text =
+      `contains(` +
+      `translate(./text(),'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      ` or strong[` +
+      `contains(` +
+      `translate(./text(),'${uppercase}','${lowercase}'),'${word}'` +
+      `)` +
+      `]`;
+    const xpath = `//li[@class='br-item'][.//span[${contains_text}]]`;
+    // xpathを使って検索
+    const xpath_result = document.evaluate(
+      xpath,
+      document,
+      null,
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+      null
+    );
+    // xpathの結果を使って要素を削除
+    for (let i = 0; i < xpath_result.snapshotLength; i++) {
+      const node = xpath_result.snapshotItem(i);
+      node.remove();
+    }
   }
 }
