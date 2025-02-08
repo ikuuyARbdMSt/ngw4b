@@ -224,8 +224,10 @@ function rmNG_main(word) {
     const searchElemsLst = Array.from(searchElems);
     // 正規表現パターンを作成する。
     const regexPattern = new RegExp(word, "i");
-    // 各要素に対して正規表現で検索する。
+    // 各要素に対して正規表現で検索して処理。
     searchElemsLst.forEach((searchElem) => {
+      const tagName = searchElem.nodeName;
+      const classNames = Array.from(searchElem.classList);
       let targetElemExpr = "";
       let isDeleted = false;
       // テキストノードに対して正規表現で検索する。
@@ -234,8 +236,6 @@ function rmNG_main(word) {
           elem.nodeName === "#text" &&
           regexPattern.test(elem.nodeValue.trim())
         ) {
-          const tagName = searchElem.nodeName;
-          const classNames = Array.from(searchElem.classList);
           let isDesc = false;
           if (tagName === "P" && !classNames.includes("na_t")) {
             isDesc = true;
@@ -261,11 +261,11 @@ function rmNG_main(word) {
           }
         }
       }
-      // aria-label属性に対して正規表現で検索する。
+      // aタグのaria-label属性に対して正規表現で検索する。
       if (!targetElemExpr) {
         const attr = searchElem.getAttribute("aria-label");
         if (
-          searchElem.nodeName === "A" &&
+          tagName === "A" &&
           attr !== null &&
           regexPattern.test(attr.trim())
         ) {
@@ -281,25 +281,14 @@ function rmNG_main(word) {
           isDeleted = true;
         }
       }
-      // data-displayname属性に対して正規表現で検索して削除
+      // divタグの属性に対して正規表現で検索して削除
       if (!isDeleted) {
-        const attr = searchElem.getAttribute("data-displayname");
+        const attr1 = searchElem.getAttribute("data-displayname");
+        const attr2 = searchElem.getAttribute("data-title");
         if (
-          searchElem.nodeName === "DIV" &&
-          attr !== null &&
-          regexPattern.test(attr.trim())
-        ) {
-          searchElem.remove();
-          isDeleted = true;
-        }
-      }
-      // data-title属性に対して正規表現で検索して削除
-      if (!isDeleted) {
-        const attr = searchElem.getAttribute("data-title");
-        if (
-          searchElem.nodeName === "DIV" &&
-          attr !== null &&
-          regexPattern.test(attr.trim())
+          tagName === "DIV" &&
+          ((attr1 !== null && regexPattern.test(attr1.trim())) ||
+            (attr2 !== null && regexPattern.test(attr2.trim())))
         ) {
           searchElem.remove();
           isDeleted = true;
@@ -441,40 +430,80 @@ function rmNG_news(word) {
   if (word_opt_match !== null) {
     const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
     const word_opt_lst = word_opt.split(",");
+    // オプション配列から不要な空白を除去する。
+    for (let i = 0; i < word_opt_lst.length; i++) {
+      word_opt_lst[i] = word_opt_lst[i].trim();
+    }
+    // regexが指定されている場合、正規表現として検索を行う。
     if (word_opt_lst.includes("regex")) {
       isRegex = true;
-    } else if (word_opt_lst.includes("title")) {
+    }
+    // titleが指定されている場合、タイトルのみを検索対象とする。
+    if (word_opt_lst.includes("title")) {
       isTitle = true;
     }
     // オプションを削除して、検索ワードのみにする。
     word = word.replace(word_opt_pattern, "");
   }
-  // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
-  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lowercase = "abcdefghijklmnopqrstuvwxyz";
-  // Xpathで要素を検索し削除
-  const xpath1 =
-    `//div[contains(@class,'news-card')][contains(translate(@data-author,` +
-    `'${uppercase}','${lowercase}'),'${word}')` +
-    `or contains(translate(@data-title,` +
-    `'${uppercase}','${lowercase}'),'${word}')]`;
-  let xpaths = xpath1;
-  if (!isTitle) {
-    const xpath2 =
-      `//div[contains(@class,'news-card')][.//div[contains(translate(@title,` +
-      `'${uppercase}','${lowercase}'),'${word}')]]`;
-    xpaths += `|${xpath2}`;
-  }
-  const xpaths_result = document.evaluate(
-    xpaths,
-    document,
-    null,
-    XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
-    null
-  );
-  for (let i = 0; i < xpaths_result.snapshotLength; i++) {
-    const node = xpaths_result.snapshotItem(i);
-    node.remove();
+  // 正規表現オプションが指定されている場合の処理。
+  if (isRegex) {
+    // 検索するタグを指定する。
+    const searchElems = document.querySelectorAll("div");
+    const searchElemsLst = Array.from(searchElems);
+    // 正規表現パターンを作成する。
+    const regexPattern = new RegExp(word, "i");
+    // 各要素に対して正規表現で検索して処理。
+    searchElemsLst.forEach((searchElem) => {
+      const classNames = Array.from(searchElem.classList);
+      const attr1 = searchElem.getAttribute("data-author");
+      const attr2 = searchElem.getAttribute("data-title");
+      const attr3 = searchElem.getAttribute("title");
+      if (
+        classNames.includes("news-card") &&
+        ((attr1 !== null && regexPattern.test(attr1.trim())) ||
+          (attr2 !== null && regexPattern.test(attr2.trim())))
+      ) {
+        searchElem.remove();
+      } else if (
+        !isTitle &&
+        attr3 !== null &&
+        regexPattern.test(attr3.trim())
+      ) {
+        const targetElemExpr = "div.news-card";
+        const targetElem = searchElem.closest(targetElemExpr);
+        if (targetElem !== null) {
+          targetElem.remove();
+        }
+      }
+    });
+  } else {
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    // Xpathで要素を検索し削除
+    const xpath1 =
+      `//div[contains(@class,'news-card')][contains(translate(@data-author,` +
+      `'${uppercase}','${lowercase}'),'${word}')` +
+      `or contains(translate(@data-title,` +
+      `'${uppercase}','${lowercase}'),'${word}')]`;
+    let xpaths = xpath1;
+    if (!isTitle) {
+      const xpath_desc1 =
+        `//div[contains(@class,'news-card')][.//div[contains(translate(@title,` +
+        `'${uppercase}','${lowercase}'),'${word}')]]`;
+      xpaths += `|${xpath_desc1}`;
+    }
+    const xpaths_result = document.evaluate(
+      xpaths,
+      document,
+      null,
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+      null
+    );
+    for (let i = 0; i < xpaths_result.snapshotLength; i++) {
+      const node = xpaths_result.snapshotItem(i);
+      node.remove();
+    }
   }
 }
 
