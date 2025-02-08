@@ -3,7 +3,7 @@
     "message": "Bing用NGワード"
   },
   "Description": {
-    "message": "設定したキーワードを含むページをBingの検索結果から除外します。"
+    "message": "設定したキーワードを含む検索結果をBingから除外します。"
   },
   "ContextMenuLabel": {
     "message": "選択したテキストをNGリストに追加"

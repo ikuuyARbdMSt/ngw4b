@@ -3,7 +3,7 @@
     "message": "Keywords blocker for Bing"
   },
   "Description": {
-    "message": "Exclude pages containing the keywords you set from Bing search results."
+    "message": "Exclude search results containing the set keywords from Bing."
   },
   "ContextMenuLabel": {
     "message": "Add selected text to NG list"
