@@ -15,8 +15,8 @@ html, body {
   text-align: center;
 }
 
-#NGListDesc {
-  font-size: 1.2em;
+#NGListHeader {
+  font-size: 1.3em;
   border-bottom: 0.25px solid gray;
   background-color: silver;
   padding-left: 0.5em;
@@ -24,5 +24,21 @@ html, body {
 
 #nglist {
   width: 100%;
-  height: 80%;
+  height: 50%;
+}
+
+#NGListDescContainer {
+  margin-top: 3%;
+  font-size: 1.1em;
+}
+
+code {
+  background-color: rgb(100, 100, 100);
+  color: white;
+  padding: 0.5em;
+}
+
+#code-opts {
+  display: flex;
+  justify-content: center;
 }

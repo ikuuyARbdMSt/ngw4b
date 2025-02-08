@@ -17,8 +17,20 @@
   "ContextMenu_PopupWindow_No": {
     "message": "No"
   },
-  "NGListDesc": {
+  "NGListHeader": {
     "message": "NG list (Separated by line breaks):"
+  },
+  "NGListDesc": {
+    "message": "Options can be added at the end of a line in the following format."
+  },
+  "OptListHeader": {
+    "message": "Option list:"
+  },
+  "OptListDesc1": {
+    "message": "Limit keyword targets to site/page titles"
+  },
+  "OptListDesc2": {
+    "message": "Enable Regular Expressions"
   },
   "PopupStatusEnabled": {
     "message": "Enabled"

@@ -17,8 +17,20 @@
   "ContextMenu_PopupWindow_No": {
     "message": "いいえ"
   },
-  "NGListDesc": {
+  "NGListHeader": {
     "message": "NGリスト（改行で区切る）："
+  },
+  "NGListDesc": {
+    "message": "行末に以下の形式でオプションを追加できます。"
+  },
+  "OptListHeader": {
+    "message": "オプションリスト："
+  },
+  "OptListDesc1": {
+    "message": "キーワードの対象をサイト/ページのタイトルに限定する"
+  },
+  "OptListDesc2": {
+    "message": "正規表現を有効化"
   },
   "PopupStatusEnabled": {
     "message": "有効"
