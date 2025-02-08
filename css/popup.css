@@ -1,0 +1,103 @@
+/* ポップアップページのスタイル */
+html, body, #toggleStatus {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: 0
+}
+body {
+  width: 200px;
+  height: 160px;
+  background-color: silver;
+}
+
+/* オプションボタンのスタイル(通常時) */
+#optBtn {
+  text-decoration: none;
+  display: block;
+  justify-content: center;
+  text-align: center;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  margin-top: 32px;
+}
+
+/* オプションボタンのスタイル(ホバー時) */
+#optBtn:hover {
+  background-color: #0056b3;
+}
+
+/* トグルスイッチのコンテナ */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* チェックボックスを非表示 */
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* スライダーの背景 */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+/* スライダーの丸い部分 */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+/* チェック時のスタイル */
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* フォーカス時のスタイル */
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+/* 無効時のスタイル */
+input:disabled + .slider {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ステータステキストの背景色 */
+#statusText {
+  font-size: 1.2em;
+  width: 50px;
+  background-color: mediumseagreen;
+  padding: 10px;
+  margin: 10px;
+  text-align: center;
+}

@@ -1,0 +1,15 @@
+{
+  "rules": {},
+  "env": {
+    "es2021": true,
+    "browser": true,
+    "webextensions": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "ecmaFeatures": { "jsx": true }
+    }
+  }
+}

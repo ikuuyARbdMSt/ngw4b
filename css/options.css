@@ -1,0 +1,28 @@
+html, body {
+  display: flex;
+  justify-content: center;
+}
+
+#container {
+  width: 70vw;
+  height: 60vh;
+  background-color: lightgray;
+  justify-content: center;
+  padding: 20px;
+}
+
+#OptTitle {
+  text-align: center;
+}
+
+#NGListDesc {
+  font-size: 1.2em;
+  border-bottom: 0.25px solid gray;
+  background-color: silver;
+  padding-left: 0.5em;
+}
+
+#nglist {
+  width: 100%;
+  height: 80%;
+}

@@ -1,0 +1,32 @@
+{
+  "Name": {
+    "message": "Keywords blocker for Bing"
+  },
+  "Description": {
+    "message": "Exclude pages containing the keywords you set from Bing search results."
+  },
+  "ContextMenuLabel": {
+    "message": "Add selected text to NG list"
+  },
+  "ContextMenu_PopupWindow_Message": {
+    "message": "Do you want to add the selected text to the NG list?:"
+  },
+  "ContextMenu_PopupWindow_Yes": {
+    "message": "Yes"
+  },
+  "ContextMenu_PopupWindow_No": {
+    "message": "No"
+  },
+  "NGListDesc": {
+    "message": "NG list (Separated by line breaks):"
+  },
+  "PopupStatusEnabled": {
+    "message": "Enabled"
+  },
+  "PopupStatusDisabled": {
+    "message": "Disabled"
+  },
+  "PopupOptBtn": {
+    "message": "Options"
+  }
+}
