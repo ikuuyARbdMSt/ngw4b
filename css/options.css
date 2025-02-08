@@ -4,8 +4,8 @@ html, body {
 }
 
 #container {
-  width: 70vw;
-  height: 60vh;
+  width: 80vw;
+  height: 100vh;
   background-color: lightgray;
   justify-content: center;
   padding: 20px;
@@ -28,7 +28,7 @@ html, body {
 }
 
 #NGListDescContainer {
-  margin-top: 3%;
+  margin-top: 10px;
   font-size: 1.1em;
 }
 
@@ -39,6 +39,5 @@ code {
 }
 
 #code-opts {
-  display: flex;
-  justify-content: center;
+  margin-left: 2%;
 }
