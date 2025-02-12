@@ -4,8 +4,9 @@ html, body {
 }
 
 #container {
-  width: 80vw;
-  height: 100vh;
+  width: 70vw;
+  height: 90vh;
+  min-height: 600px;
   background-color: lightgray;
   justify-content: center;
   padding: 20px;
