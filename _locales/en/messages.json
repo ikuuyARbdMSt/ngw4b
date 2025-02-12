@@ -11,6 +11,12 @@
   "ContextMenu_PopupWindow_Message": {
     "message": "Do you want to add the selected text to the NG list?:"
   },
+  "ContextMenu_PopupWindow_CheckboxLimitTitle": {
+    "message": "Title Only"
+  },
+  "ContextMenu_PopupWindow_CheckboxRegex": {
+    "message": "Regex"
+  },
   "ContextMenu_PopupWindow_Yes": {
     "message": "Yes"
   },

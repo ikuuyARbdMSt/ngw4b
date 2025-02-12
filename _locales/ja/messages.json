@@ -11,6 +11,12 @@
   "ContextMenu_PopupWindow_Message": {
     "message": "選択テキストをNGリストに追加しますか？："
   },
+  "ContextMenu_PopupWindow_CheckboxLimitTitle": {
+    "message": "タイトルのみ"
+  },
+  "ContextMenu_PopupWindow_CheckboxRegex": {
+    "message": "正規表現"
+  },
   "ContextMenu_PopupWindow_Yes": {
     "message": "はい"
   },

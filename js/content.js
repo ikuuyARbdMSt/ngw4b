@@ -32,32 +32,78 @@ function exe_ContextMenu(selectionText) {
   // 選択テキストから余分な空白を削除
   selectionText = selectionText.replace(/^(\s|　)+|(\s|　)+$/g, "");
   selectionText = selectionText.replace(/\n(\s|　)+|(\s|　)+\n/g, "\n");
-  // ポップアップウィンドウを作成する
+  // ポップアップウィンドウ用のオーバーレイを追加する
   const overlay = document.createElement("div");
   overlay.id = "ngw4b_overlay";
+  document.body.appendChild(overlay);
+  // ポップアップウィンドウを作成する
   const popup = document.createElement("div");
   popup.id = "ngw4b_popup";
-  const popup_content = document.createElement("div");
-  popup_content.id = "ngw4b_popup-content";
+  // ポップアップウィンドウにタイトルを追加する
   const popup_title = document.createElement("h2");
   popup_title.textContent = chrome.i18n.getMessage("Name");
+  popup.appendChild(popup_title);
+  // ポップアップウィンドウにメッセージを追加する
   const popup_message = document.createElement("p");
-  popup_message.textContent =
-    chrome.i18n.getMessage("ContextMenu_PopupWindow_Message") +
-    ` "${selectionText}"`;
-  const ok_button = document.createElement("button");
-  ok_button.textContent = chrome.i18n.getMessage("ContextMenu_PopupWindow_Yes");
-  ok_button.id = "ngw4b_ok-btn";
+  popup_message.id = "ngw4b_popup-message";
+  popup_message.textContent = chrome.i18n.getMessage(
+    "ContextMenu_PopupWindow_Message"
+  );
+  popup.appendChild(popup_message);
+  // ポップアップウィンドウにテキストエリアを追加する
+  const popup_textarea = document.createElement("textarea");
+  popup_textarea.id = "ngw4b_popup-textarea";
+  popup_textarea.value = selectionText;
+  popup.appendChild(popup_textarea);
+  // ポップアップウィンドウ用のオプションチェックボックスのコンテナを作成
+  const popup_checkboxes = document.createElement("div");
+  popup_checkboxes.id = "ngw4b_popup-checkboxes";
+  // タイトル限定オプションのチェックボックスを作成する
+  const checkboxLimitTitle = document.createElement("input");
+  checkboxLimitTitle.type = "checkbox";
+  checkboxLimitTitle.id = "ngw4b_checkboxLimitTitle";
+  popup_checkboxes.appendChild(checkboxLimitTitle);
+  // タイトル限定オプションのチェックボックス用ラベルを作成する
+  const checkboxLimitTitle_label = document.createElement("label");
+  checkboxLimitTitle_label.htmlFor = "ngw4b_checkboxLimitTitle";
+  checkboxLimitTitle_label.textContent = chrome.i18n.getMessage(
+    "ContextMenu_PopupWindow_CheckboxLimitTitle"
+  );
+  popup_checkboxes.appendChild(checkboxLimitTitle_label);
+  // 正規表現オプションのチェックボックスを作成する
+  const checkboxRegex = document.createElement("input");
+  checkboxRegex.type = "checkbox";
+  checkboxRegex.id = "ngw4b_checkboxRegex";
+  popup_checkboxes.appendChild(checkboxRegex);
+  // 正規表現オプションのチェックボックス用のラベルを作成する
+  const checkboxRegex_label = document.createElement("label");
+  checkboxRegex_label.htmlFor = "ngw4b_checkboxRegex";
+  checkboxRegex_label.textContent = chrome.i18n.getMessage(
+    "ContextMenu_PopupWindow_CheckboxRegex"
+  );
+  popup_checkboxes.appendChild(checkboxRegex_label);
+  // ポップアップウィンドウに作成したオプションチェックボックスを追加する
+  popup.appendChild(popup_checkboxes);
+  // ポップアップウィンドウ用の選択ボタンコンテナを作成する
+  const popup_buttons = document.createElement("div");
+  popup_buttons.id = "ngw4b_popup-buttons";
+  // Yesボタンを作成する
+  const yes_button = document.createElement("button");
+  yes_button.textContent = chrome.i18n.getMessage(
+    "ContextMenu_PopupWindow_Yes"
+  );
+  yes_button.id = "ngw4b_yes-btn";
+  popup_buttons.appendChild(yes_button);
+  // Noボタンを作成する
   const no_button = document.createElement("button");
   no_button.textContent = chrome.i18n.getMessage("ContextMenu_PopupWindow_No");
   no_button.id = "ngw4b_no-btn";
-  popup_content.appendChild(popup_title);
-  popup_content.appendChild(popup_message);
-  popup.appendChild(popup_content);
-  popup.appendChild(ok_button);
-  popup.appendChild(no_button);
-  document.body.appendChild(overlay);
+  popup_buttons.appendChild(no_button);
+  // ポップアップウィンドウに作成した選択ボタンを追加する
+  popup.appendChild(popup_buttons);
+  // ポップアップウィンドウを追加する
   document.body.appendChild(popup);
+  // スタイルを追加する
   const style = document.createElement("style");
   style.id = "ngw4b_style";
   style.textContent = `
@@ -86,26 +132,30 @@ function exe_ContextMenu(selectionText) {
         z-index: 1001;
         min-width: 300px;
     }
-
-    /* ポップアップコンテンツ */
-    #ngw4b_popup-content {
-        margin-bottom: 40px;
+    
+    /* ポップアップメッセージ */
+    #ngw4b_popup-message {
+        margin: 10px 0 10px;
     }
 
-    /* OKボタン */
-    #ngw4b_ok-btn {
-        position: absolute;
-        right: 120px;
-        bottom: 10px;
-        padding: 8px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+    /* ポップアップテキストエリア */
+    #ngw4b_popup-textarea {
+        margin: 10px 0 10px;
+        width: calc(100% - 20px);
+        border: 1px solid #ccc;
+        padding: 8px;
     }
-    #ngw4b_ok-btn:hover {
-        background-color: #0056b3;
+    
+    /* ポップアップのチェックボックスコンテナ */
+    #ngw4b_popup-checkboxes {
+        margin: 10px 0 10px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* ポップアップのボタンコンテナ */
+    #ngw4b_popup-buttons {
+        margin: 40px 0 40px;
     }
 
     /* NOボタン */
@@ -123,13 +173,29 @@ function exe_ContextMenu(selectionText) {
     #ngw4b_no-btn:hover {
         background-color: rgb(156, 7, 39);
     }
+
+    /* OKボタン */
+    #ngw4b_yes-btn {
+        position: absolute;
+        right: 120px;
+        bottom: 10px;
+        padding: 8px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    #ngw4b_yes-btn:hover {
+        background-color: #0056b3;
+    }
   `;
   document.body.appendChild(style);
   // ポップアップウィンドウのボタンがクリックされたら、ポップアップウィンドウを閉じる
-  ok_button.addEventListener("click", ngw4b_closePopup);
+  yes_button.addEventListener("click", ngw4b_closePopup);
   no_button.addEventListener("click", ngw4b_closePopup);
   // OKボタンがクリックされたら、選択テキストをNGワードに追加する
-  ok_button.addEventListener("click", () => {
+  yes_button.addEventListener("click", () => {
     // 現在のNGリストを取得
     chrome.storage.sync.get("ngw4b_nglist", function (items) {
       let nglist = "";
