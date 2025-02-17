@@ -14,11 +14,14 @@ function toggleSwitch() {
       status = true;
       chrome.storage.sync.set({ ngw4b_status: status });
     }
+
     // トグルスイッチ要素の取得
     const toggleSwitch = document.getElementById("toggleSwitch");
+
     // ステータス表示テキストを作成
     const statusText = document.createElement("div");
     statusText.id = "statusText";
+
     // 初期状態
     toggleSwitch.checked = status;
     const enable_str = chrome.i18n.getMessage("PopupStatusEnabled");
@@ -32,16 +35,20 @@ function toggleSwitch() {
       statusText.textContent = disable_str;
       statusText.style.color = disable_color;
     }
+
     // ステータス表示テキストを追加
     const toggleStatus = document.getElementById("toggleStatus");
     toggleStatus.appendChild(statusText);
+
     // 状態変更時のイベントリスナー
     toggleSwitch.addEventListener("change", function () {
       if (this.checked) {
+        // チェックボックスがオンの場合
         status = true;
         statusText.textContent = enable_str;
         statusText.style.color = enable_color;
       } else {
+        // チェックボックスがオフの場合
         status = false;
         statusText.textContent = disable_str;
         statusText.style.color = disable_color;
@@ -61,6 +68,7 @@ function optBtn() {
   link.setAttribute("name", "newtab");
   const container = document.getElementById("container");
   container.appendChild(link);
+
   // リンクをクリックしたときにタブを開くようにする
   const links = document.getElementsByName("newtab");
   for (var i = 0; i < links.length; i++) {

@@ -27,82 +27,96 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 function exe_ContextMenu(selectionText) {
-  // 選択テキストを小文字に変換
-  selectionText = selectionText.toLowerCase();
   // 選択テキストから余分な空白を削除
   selectionText = selectionText.replace(/^(\s|　)+|(\s|　)+$/g, "");
   selectionText = selectionText.replace(/\n(\s|　)+|(\s|　)+\n/g, "\n");
+
   // ポップアップウィンドウ用のオーバーレイを追加する
   const overlay = document.createElement("div");
   overlay.id = "ngw4b_overlay";
   document.body.appendChild(overlay);
+
   // ポップアップウィンドウを作成する
   const popup = document.createElement("div");
   popup.id = "ngw4b_popup";
+
   // ポップアップウィンドウにタイトルを追加する
-  const popup_title = document.createElement("h2");
-  popup_title.textContent = chrome.i18n.getMessage("Name");
-  popup.appendChild(popup_title);
+  const popupTitle = document.createElement("h2");
+  popupTitle.textContent = chrome.i18n.getMessage("Name");
+  popup.appendChild(popupTitle);
+
   // ポップアップウィンドウにメッセージを追加する
-  const popup_message = document.createElement("p");
-  popup_message.id = "ngw4b_popup-message";
-  popup_message.textContent = chrome.i18n.getMessage(
+  const popupMessage = document.createElement("p");
+  popupMessage.id = "ngw4b_popupMessage";
+  popupMessage.textContent = chrome.i18n.getMessage(
     "ContextMenu_PopupWindow_Message"
   );
-  popup.appendChild(popup_message);
+  popup.appendChild(popupMessage);
+
   // ポップアップウィンドウにテキストエリアを追加する
-  const popup_textarea = document.createElement("textarea");
-  popup_textarea.id = "ngw4b_popup-textarea";
-  popup_textarea.value = selectionText;
-  popup.appendChild(popup_textarea);
+  const popupInput = document.createElement("input");
+  popupInput.type = "text";
+  popupInput.id = "ngw4b_popupInput";
+  popupInput.value = selectionText;
+  popup.appendChild(popupInput);
+
   // ポップアップウィンドウ用のオプションチェックボックスのコンテナを作成
-  const popup_checkboxes = document.createElement("div");
-  popup_checkboxes.id = "ngw4b_popup-checkboxes";
+  const popupCheckboxes = document.createElement("div");
+  popupCheckboxes.id = "ngw4b_popupCheckboxes";
+
   // タイトル限定オプションのチェックボックスを作成する
   const checkboxLimitTitle = document.createElement("input");
   checkboxLimitTitle.type = "checkbox";
   checkboxLimitTitle.id = "ngw4b_checkboxLimitTitle";
-  popup_checkboxes.appendChild(checkboxLimitTitle);
+  popupCheckboxes.appendChild(checkboxLimitTitle);
+
   // タイトル限定オプションのチェックボックス用ラベルを作成する
   const checkboxLimitTitle_label = document.createElement("label");
   checkboxLimitTitle_label.htmlFor = "ngw4b_checkboxLimitTitle";
   checkboxLimitTitle_label.textContent = chrome.i18n.getMessage(
     "ContextMenu_PopupWindow_CheckboxLimitTitle"
   );
-  popup_checkboxes.appendChild(checkboxLimitTitle_label);
+  popupCheckboxes.appendChild(checkboxLimitTitle_label);
+
   // 正規表現オプションのチェックボックスを作成する
   const checkboxRegex = document.createElement("input");
   checkboxRegex.type = "checkbox";
   checkboxRegex.id = "ngw4b_checkboxRegex";
-  popup_checkboxes.appendChild(checkboxRegex);
+  popupCheckboxes.appendChild(checkboxRegex);
+
   // 正規表現オプションのチェックボックス用のラベルを作成する
   const checkboxRegex_label = document.createElement("label");
   checkboxRegex_label.htmlFor = "ngw4b_checkboxRegex";
   checkboxRegex_label.textContent = chrome.i18n.getMessage(
     "ContextMenu_PopupWindow_CheckboxRegex"
   );
-  popup_checkboxes.appendChild(checkboxRegex_label);
+  popupCheckboxes.appendChild(checkboxRegex_label);
+
   // ポップアップウィンドウに作成したオプションチェックボックスを追加する
-  popup.appendChild(popup_checkboxes);
+  popup.appendChild(popupCheckboxes);
+
   // ポップアップウィンドウ用の選択ボタンコンテナを作成する
-  const popup_buttons = document.createElement("div");
-  popup_buttons.id = "ngw4b_popup-buttons";
+  const popupButtons = document.createElement("div");
+  popupButtons.id = "ngw4b_popupButtons";
+
   // Yesボタンを作成する
-  const yes_button = document.createElement("button");
-  yes_button.textContent = chrome.i18n.getMessage(
-    "ContextMenu_PopupWindow_Yes"
-  );
-  yes_button.id = "ngw4b_yes-btn";
-  popup_buttons.appendChild(yes_button);
+  const yes_btn = document.createElement("button");
+  yes_btn.textContent = chrome.i18n.getMessage("ContextMenu_PopupWindow_Yes");
+  yes_btn.id = "ngw4b_popupButtons_yes-btn";
+  popupButtons.appendChild(yes_btn);
+
   // Noボタンを作成する
-  const no_button = document.createElement("button");
-  no_button.textContent = chrome.i18n.getMessage("ContextMenu_PopupWindow_No");
-  no_button.id = "ngw4b_no-btn";
-  popup_buttons.appendChild(no_button);
+  const no_btn = document.createElement("button");
+  no_btn.textContent = chrome.i18n.getMessage("ContextMenu_PopupWindow_No");
+  no_btn.id = "ngw4b_popupButtons_no-btn";
+  popupButtons.appendChild(no_btn);
+
   // ポップアップウィンドウに作成した選択ボタンを追加する
-  popup.appendChild(popup_buttons);
+  popup.appendChild(popupButtons);
+
   // ポップアップウィンドウを追加する
   document.body.appendChild(popup);
+
   // スタイルを追加する
   const style = document.createElement("style");
   style.id = "ngw4b_style";
@@ -134,12 +148,12 @@ function exe_ContextMenu(selectionText) {
     }
     
     /* ポップアップメッセージ */
-    #ngw4b_popup-message {
+    #ngw4b_popupMessage {
         margin: 10px 0 10px;
     }
 
     /* ポップアップテキストエリア */
-    #ngw4b_popup-textarea {
+    #ngw4b_popupInput {
         margin: 10px 0 10px;
         width: calc(100% - 20px);
         border: 1px solid #ccc;
@@ -147,19 +161,19 @@ function exe_ContextMenu(selectionText) {
     }
     
     /* ポップアップのチェックボックスコンテナ */
-    #ngw4b_popup-checkboxes {
+    #ngw4b_popupCheckboxes {
         margin: 10px 0 10px;
         display: flex;
         justify-content: center;
     }
     
     /* ポップアップのボタンコンテナ */
-    #ngw4b_popup-buttons {
+    #ngw4b_popupButtons {
         margin: 40px 0 40px;
     }
 
     /* NOボタン */
-    #ngw4b_no-btn {
+    #ngw4b_popupButtons_no-btn {
         position: absolute;
         right: 20px;
         bottom: 10px;
@@ -170,12 +184,12 @@ function exe_ContextMenu(selectionText) {
         border-radius: 4px;
         cursor: pointer;
     }
-    #ngw4b_no-btn:hover {
+    #ngw4b_popupButtons_no-btn:hover {
         background-color: rgb(156, 7, 39);
     }
 
     /* OKボタン */
-    #ngw4b_yes-btn {
+    #ngw4b_popupButtons_yes-btn {
         position: absolute;
         right: 120px;
         bottom: 10px;
@@ -186,36 +200,125 @@ function exe_ContextMenu(selectionText) {
         border-radius: 4px;
         cursor: pointer;
     }
-    #ngw4b_yes-btn:hover {
+    #ngw4b_popupButtons_yes-btn:hover {
         background-color: #0056b3;
     }
   `;
   document.body.appendChild(style);
-  // ポップアップウィンドウのボタンがクリックされたら、ポップアップウィンドウを閉じる
-  yes_button.addEventListener("click", ngw4b_closePopup);
-  no_button.addEventListener("click", ngw4b_closePopup);
-  // OKボタンがクリックされたら、選択テキストをNGワードに追加する
-  yes_button.addEventListener("click", () => {
+
+  // テキストエリアの内容が変更されたら自動保存するようにする
+  popupInput.addEventListener("input", function () {
+    // テキストエリアからデータを取得
+    let popupInputValue = popupInput.value ?? "";
+    // データから先頭と末尾の空白を削除
+    popupInputValue = popupInputValue.replace(/^(\s|　)+|(\s|　)+$/g, "");
+    popupInputValue = popupInputValue.replace(/\n(\s|　)+|(\s|　)+\n/g, "\n");
+    // ストレージに保存
+    chrome.storage.sync.set({ ngw4b_popupInputValue: popupInputValue });
+  });
+
+  // チェックボックスの状態が変更されたときの処理(title)
+  checkboxLimitTitle.addEventListener("change", function () {
+    const opt = "title"; // オプション文字列を定義する
+    let txt = popupInput.value ?? "";
+    if (this.checked) {
+      // チェックボックスがオンの場合
+      txt = addOpt(txt, opt);
+    } else {
+      // チェックボックスがオフの場合
+      txt = rmOpt(txt, opt);
+    }
+    popupInput.value = txt;
+    chrome.storage.sync.set({ ngw4b_popupInputValue: txt });
+  });
+
+  // チェックボックスの状態が変更されたときの処理(regex)
+  checkboxRegex.addEventListener("change", function () {
+    const opt = "regex"; // オプション文字列を定義する
+    let txt = popupInput.value ?? "";
+    if (this.checked) {
+      // チェックボックスがオンの場合
+      txt = addOpt(txt, opt);
+    } else {
+      // チェックボックスがオフの場合
+      txt = rmOpt(txt, opt);
+    }
+    popupInput.value = txt;
+    chrome.storage.sync.set({ ngw4b_popupInputValue: txt });
+  });
+
+  // オプションを追加
+  function addOpt(txt, opt) {
+    const optMatch = txt.match(/\[[a-z,]*\]$/);
+    if (optMatch !== null) {
+      // オプション文字列から不要な[]を取り除き、コンマで分割する
+      const opts = optMatch[0].replace(/^\[|\]$/g, "").split(",");
+      if (!opts.includes(opt)) {
+        if (opts[0] !== "" || opts.length > 1) {
+          opt = "," + opt;
+        }
+        txt = txt.replace(/\]$/, `${opt}]`);
+      }
+    } else {
+      txt += `[${opt}]`;
+    }
+    return txt;
+  }
+
+  // オプションを削除
+  function rmOpt(txt, opt) {
+    const optRegexPtrn = new RegExp(`${opt}([a-z,]*\])$`);
+    txt = txt.replace(optRegexPtrn, "$1");
+    txt = txt.replace(/,{2,}/, ",");
+    txt = txt.replace(/\[,([a-z,]*\])$/, "[$1");
+    txt = txt.replace(/,\]$/, "]");
+    txt = txt.replace(/\[\]$/, "");
+    console.log(txt);
+    return txt;
+  }
+
+  // Yesボタンクリック時の処理
+  yes_btn.addEventListener("click", () => {
     // 現在のNGリストを取得
     chrome.storage.sync.get("ngw4b_nglist", function (items) {
       let nglist = "";
       if (items.ngw4b_nglist !== undefined && items.ngw4b_nglist !== "") {
         nglist = items.ngw4b_nglist + "\n";
       }
-      // NGリストに選択テキストを追加
-      nglist += selectionText;
-      // NGリストから重複を削除
-      const nglist_array = nglist.split("\n");
-      const nglist_array_unique = [...new Set(nglist_array)];
-      nglist = nglist_array_unique.join("\n");
-      // NGリストを保存
-      chrome.storage.sync.set({ ngw4b_nglist: nglist });
+      // ポップアップウィンドウで入力された値を取得する
+      chrome.storage.sync.get("ngw4b_popupInputValue", function (items) {
+        let ngText = selectionText;
+        if (
+          items.ngw4b_popupInputValue !== undefined &&
+          items.ngw4b_popupInputValue !== ""
+        ) {
+          ngText = items.ngw4b_popupInputValue;
+        }
+
+        // NGリストにポップアップウィンドウで入力された値を追加する
+        nglist += ngText;
+
+        // NGリストから重複を削除
+        nglist = [...new Set(nglist.split("\n"))].join("\n");
+
+        // NGリストを保存
+        chrome.storage.sync.set({ ngw4b_nglist: nglist });
+
+        // 削除処理の実行
+        exe_rmNG(ngText);
+        chrome.storage.sync.set({ ngw4b_popupInputValue: "" });
+      });
     });
-    // 削除処理の実行
-    exe_rmNG(selectionText);
+
+    // ポップアップウィンドウを閉じる
+    closePopup();
   });
+
+  // Noボタンがクリックされたら、ポップアップウィンドウを閉じる処理のみ行う
+  no_btn.addEventListener("click", closePopup);
+
   // ポップアップウィンドウを閉じる関数
-  function ngw4b_closePopup() {
+  function closePopup() {
     document.getElementById("ngw4b_overlay").remove();
     document.getElementById("ngw4b_popup").remove();
     document.getElementById("ngw4b_style").remove();
@@ -224,6 +327,7 @@ function exe_ContextMenu(selectionText) {
 
 // 削除処理の実行
 function exe_rmNG(word) {
+  console.log("ngw4b called with word:", word);
   // ステータスを取得
   chrome.storage.sync.get("ngw4b_status", function (items) {
     let status = items.ngw4b_status;
@@ -231,38 +335,45 @@ function exe_rmNG(word) {
       status = true;
       chrome.storage.sync.set({ ngw4b_status: status });
     }
+
+    // ステータスが有効モードの場合のみ削除処理を行う
     if (status) {
-      // 検索ワードにオプションが含まれているかを判定する正規表現パターン。
-      const word_opt_pattern = /\[[^\]]+\]$/;
-      // 検索ワードからオプションを抽出する。
-      const word_opt_match = word.match(word_opt_pattern);
-      // 検索ワードにオプションが含まれている場合、そのオプションを処理する。
+      // 検索ワードからオプションを抽出する
+      const optMatch = word.match(/\[[a-z,]*\]$/);
+
+      // 検索ワードにオプションが含まれている場合、そのオプションを処理する
       let isRegex = false;
       let isTitle = false;
-      if (word_opt_match !== null) {
-        const word_opt = word_opt_match[0].replace(/^\[|\]$/g, "");
-        const word_opt_lst = word_opt.split(",");
-        // オプション配列から不要な空白を除去する。
-        for (let i = 0; i < word_opt_lst.length; i++) {
-          word_opt_lst[i] = word_opt_lst[i].trim();
+      if (optMatch !== null) {
+        // オプション文字列から不要な[]を取り除き、コンマで分割する
+        const opts = optMatch[0].replace(/^\[|\]$/g, "").split(",");
+
+        // オプション配列から不要な空白を除去する
+        for (let i = 0; i < opts.length; i++) {
+          opts[i] = opts[i].trim();
         }
-        // regexが指定されている場合、正規表現として検索を行う。
-        if (word_opt_lst.includes("regex")) {
+
+        // regexが指定されている場合、正規表現として検索を行う
+        if (opts.includes("regex")) {
           isRegex = true;
         }
-        // titleが指定されている場合、タイトルのみを検索対象とする。
-        if (word_opt_lst.includes("title")) {
+
+        // titleが指定されている場合、タイトルのみを検索対象とする
+        if (opts.includes("title")) {
           isTitle = true;
         }
-        // オプションを削除して、検索ワードのみにする。
-        word = word.replace(word_opt_pattern, "");
+
+        // オプションを削除して、検索ワードのみにする
+        word = word.replace(optPattern, "");
       }
-      // 開いているページを判定
+
+      // 開いているページを取得
       const currentURL = window.location.href;
+
+      // 削除処理
       const pattern_img = /^https:\/\/www\.bing\.com\/images\//;
       const pattern_news = /^https:\/\/www\.bing\.com\/news\//;
       const pattern_shop = /^https:\/\/www\.bing\.com\/shop\?/;
-      // 削除処理
       if (pattern_img.test(currentURL)) {
         // Bing画像検索の場合
         rmNG_img(word, isRegex);
@@ -283,20 +394,20 @@ function exe_rmNG(word) {
 
 // 引数の文字列を含む通常検索結果を削除する
 function rmNG_main(word, isRegex, isTitle) {
-  // 正規表現オプションが指定されている場合の処理。
+  // 正規表現オプションが指定されている場合の処理
   if (isRegex) {
-    // 検索するタグを指定する。
+    // 検索するタグを指定する
     const searchElems = document.querySelectorAll("p, a, div, span");
     const searchElemsLst = Array.from(searchElems);
-    // 正規表現パターンを作成する。
+    // 正規表現パターンを作成する
     const regexPattern = new RegExp(word, "i");
-    // 各要素に対して正規表現で検索して処理。
+    // 各要素に対して正規表現で検索して処理
     searchElemsLst.forEach((searchElem) => {
       const tagName = searchElem.nodeName;
       const classNames = Array.from(searchElem.classList);
       let targetElemExpr = "";
       let isDeleted = false;
-      // テキストノードに対して正規表現で検索する。
+      // テキストノードを検索し、削除する要素を指定する
       for (let elem of searchElem.childNodes) {
         if (
           elem.nodeName === "#text" &&
@@ -327,7 +438,8 @@ function rmNG_main(word, isRegex, isTitle) {
           }
         }
       }
-      // aタグのaria-label属性に対して正規表現で検索する。
+
+      // aタグのaria-label属性を検索し、削除する要素を指定する
       if (!targetElemExpr) {
         const attr = searchElem.getAttribute("aria-label");
         if (
@@ -339,7 +451,8 @@ function rmNG_main(word, isRegex, isTitle) {
             "li.b_algo, div.slide, div:has(div.mc_vtvc), div.na_card_wrp";
         }
       }
-      // 正規表現でマッチした検索結果を削除する。
+
+      // 指定された要素を削除する
       if (targetElemExpr) {
         const targetElem = searchElem.closest(targetElemExpr);
         if (targetElem !== null) {
@@ -347,7 +460,8 @@ function rmNG_main(word, isRegex, isTitle) {
           isDeleted = true;
         }
       }
-      // divタグの属性に対して正規表現で検索して削除
+
+      // 正規表現でマッチした属性値を持つdiv要素を削除する（data-displaynameまたはdata-title属性）
       if (!isDeleted) {
         const attr1 = searchElem.getAttribute("data-displayname");
         const attr2 = searchElem.getAttribute("data-title");
@@ -362,9 +476,13 @@ function rmNG_main(word, isRegex, isTitle) {
       }
     });
   } else {
-    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    // 検索テキストを小文字に変換
+    word = word.toLowerCase();
+
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
+
     // Xpath式
     const contains_text =
       `contains(` +
@@ -428,6 +546,7 @@ function rmNG_main(word, isRegex, isTitle) {
         `]`;
       xpaths += `|${xpath_desc1}|${xpath_desc2}`;
     }
+
     // xpathを使って検索
     const xpaths_result = document.evaluate(
       xpaths,
@@ -436,6 +555,7 @@ function rmNG_main(word, isRegex, isTitle) {
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
+
     // xpathの結果を使って要素を削除
     for (let i = 0; i < xpaths_result.snapshotLength; i++) {
       const node = xpaths_result.snapshotItem(i);
@@ -463,14 +583,16 @@ function rmNG_main_cleaning() {
 
 // 引数の文字列を含む画像検索結果を削除する
 function rmNG_img(word, isRegex) {
-  // 正規表現オプションが指定されている場合の処理。
+  // 正規表現オプションが指定されている場合の処理
   if (isRegex) {
-    // 検索するタグを指定する。
+    // 検索するタグを指定する
     const searchElems = document.querySelectorAll("a");
     const searchElemsLst = Array.from(searchElems);
-    // 正規表現パターンを作成する。
+
+    // 正規表現パターンを作成する
     const regexPattern = new RegExp(word, "i");
-    // 各要素に対して正規表現で検索して処理。
+
+    // 各要素に対して正規表現で検索して処理
     searchElemsLst.forEach((searchElem) => {
       const attr = searchElem.getAttribute("aria-label");
       if (attr !== null && regexPattern.test(attr.trim())) {
@@ -482,9 +604,13 @@ function rmNG_img(word, isRegex) {
       }
     });
   } else {
-    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    // 検索テキストを小文字に変換
+    word = word.toLowerCase();
+
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
+
     // Xpath式
     const xpath =
       `//li[` +
@@ -493,6 +619,7 @@ function rmNG_img(word, isRegex) {
       `translate(@aria-label,'${uppercase}','${lowercase}'), '${word}'` +
       `)]` +
       `]`;
+
     // xpathを使って検索
     const xpath_result = document.evaluate(
       xpath,
@@ -501,6 +628,7 @@ function rmNG_img(word, isRegex) {
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
+
     // xpathの結果を使って要素を削除
     for (let i = 0; i < xpath_result.snapshotLength; i++) {
       const node = xpath_result.snapshotItem(i);
@@ -511,14 +639,16 @@ function rmNG_img(word, isRegex) {
 
 // 引数の文字列を含むニュース検索結果を削除する
 function rmNG_news(word, isRegex, isTitle) {
-  // 正規表現オプションが指定されている場合の処理。
+  // 正規表現オプションが指定されている場合の処理
   if (isRegex) {
-    // 検索するタグを指定する。
+    // 検索するタグを指定する
     const searchElems = document.querySelectorAll("div");
     const searchElemsLst = Array.from(searchElems);
-    // 正規表現パターンを作成する。
+
+    // 正規表現パターンを作成する
     const regexPattern = new RegExp(word, "i");
-    // 各要素に対して正規表現で検索して処理。
+
+    // 各要素に対して正規表現で検索して処理
     searchElemsLst.forEach((searchElem) => {
       const classNames = Array.from(searchElem.classList);
       const attr1 = searchElem.getAttribute("data-author");
@@ -543,10 +673,14 @@ function rmNG_news(word, isRegex, isTitle) {
       }
     });
   } else {
-    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    // 検索テキストを小文字に変換
+    word = word.toLowerCase();
+
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
-    // Xpathで要素を検索し削除
+
+    // Xpath式
     const xpath1 =
       `//div[contains(@class,'news-card')][` +
       `contains(` +
@@ -566,6 +700,7 @@ function rmNG_news(word, isRegex, isTitle) {
         `]`;
       xpaths += `|${xpath_desc1}`;
     }
+
     // xpathを使って検索
     const xpaths_result = document.evaluate(
       xpaths,
@@ -574,6 +709,7 @@ function rmNG_news(word, isRegex, isTitle) {
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
+
     // xpathの結果を使って要素を削除
     for (let i = 0; i < xpaths_result.snapshotLength; i++) {
       const node = xpaths_result.snapshotItem(i);
@@ -584,16 +720,18 @@ function rmNG_news(word, isRegex, isTitle) {
 
 // 引数の文字列を含むショップ検索結果を削除する
 function rmNG_shop(word, isRegex) {
-  // 正規表現オプションが指定されている場合の処理。
+  // 正規表現オプションが指定されている場合の処理
   if (isRegex) {
-    // 検索するタグを指定する。
+    // 検索するタグを指定する
     const searchElems = document.querySelectorAll("span");
     const searchElemsLst = Array.from(searchElems);
-    // 正規表現パターンを作成する。
+
+    // 正規表現パターンを作成する
     const regexPattern = new RegExp(word, "i");
-    // 各要素に対して正規表現で検索して処理。
+
+    // 各要素に対して正規表現で検索して処理
     searchElemsLst.forEach((searchElem) => {
-      // テキストノードに対して正規表現で検索する。
+      // テキストノードに対しての検索処理
       for (let elem of searchElem.childNodes) {
         if (
           elem.nodeName === "#text" &&
@@ -608,9 +746,13 @@ function rmNG_shop(word, isRegex) {
       }
     });
   } else {
-    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要。
+    // 検索テキストを小文字に変換
+    word = word.toLowerCase();
+
+    // 大文字小文字区別しないようにするための変数定義とtranslate関数の使用に必要
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
+
     // Xpath式
     const contains_text =
       `contains(` +
@@ -621,7 +763,9 @@ function rmNG_shop(word, isRegex) {
       `translate(./text(),'${uppercase}','${lowercase}'),'${word}'` +
       `)` +
       `]`;
+
     const xpath = `//li[@class='br-item'][.//span[${contains_text}]]`;
+
     // xpathを使って検索
     const xpath_result = document.evaluate(
       xpath,
@@ -630,6 +774,7 @@ function rmNG_shop(word, isRegex) {
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
+
     // xpathの結果を使って要素を削除
     for (let i = 0; i < xpath_result.snapshotLength; i++) {
       const node = xpath_result.snapshotItem(i);

@@ -12,18 +12,18 @@ chrome.storage.sync.get("ngw4b_nglist", function (items) {
 nglist.addEventListener("input", function () {
   // テキストエリアからデータを取得
   let nglist = textarea_nglist.value ?? "";
-  // データを小文字に変換
-  nglist = nglist.toLowerCase();
+
   // データから空行を削除
   nglist = nglist.replace(/\n{2,}/g, "\n");
   nglist = nglist.replace(/\n$/, "");
+
   // データから先頭と末尾の空白を削除
   nglist = nglist.replace(/^(\s|　)+|(\s|　)+$/g, "");
   nglist = nglist.replace(/\n(\s|　)+|(\s|　)+\n/g, "\n");
+
   // NGリストから重複を削除
-  const nglist_array = nglist.split("\n");
-  const nglist_array_unique = [...new Set(nglist_array)];
-  nglist = nglist_array_unique.join("\n");
+  nglist = [...new Set(nglist.split("\n"))].join("\n");
+
   // ストレージに保存
   chrome.storage.sync.set({ ngw4b_nglist: nglist });
 });
